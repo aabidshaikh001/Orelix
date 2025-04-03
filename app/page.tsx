@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import { motion } from "framer-motion"
 
 // Testimonials data
 const testimonials = [
@@ -30,20 +31,19 @@ const testimonials = [
 const roadmaps = [
   {
     title: "Card title",
-    image:"",
-    content: "Some quick example text to build on the card title and make up the bulk of the card's content.",
-    updatedTime: "5 mins ago",
-
-  },
-  {
-    title: "Card title",
-    image:"",
+    image: "",
     content: "Some quick example text to build on the card title and make up the bulk of the card's content.",
     updatedTime: "5 mins ago",
   },
   {
     title: "Card title",
-    image:"",
+    image: "",
+    content: "Some quick example text to build on the card title and make up the bulk of the card's content.",
+    updatedTime: "5 mins ago",
+  },
+  {
+    title: "Card title",
+    image: "",
     content: "Some quick example text to build on the card title and make up the bulk of the card's content.",
     updatedTime: "5 mins ago",
   },
@@ -51,6 +51,7 @@ const roadmaps = [
 
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [isTextRevealed, setIsTextRevealed] = useState(false)
 
   const nextTestimonial = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length)
@@ -60,48 +61,134 @@ export default function Home() {
     setCurrentIndex((prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length)
   }
 
+  // Trigger text reveal animation after component mounts
+  useEffect(() => {
+    setIsTextRevealed(true)
+  }, [])
+
+  // Text animation variants
+  const headingVariants = {
+    hidden: {
+      filter: "blur(10px)",
+      opacity: 0,
+      y: 20,
+    },
+    visible: {
+      filter: "blur(0px)",
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 1.2,
+        ease: "easeOut",
+      },
+    },
+  }
+
+  const paragraphVariants = {
+    hidden: {
+      filter: "blur(8px)",
+      opacity: 0,
+      y: 15,
+    },
+    visible: {
+      filter: "blur(0px)",
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 1.2,
+        delay: 0.3,
+        ease: "easeOut",
+      },
+    },
+  }
+
+  const buttonVariants = {
+    hidden: {
+      filter: "blur(5px)",
+      opacity: 0,
+      scale: 0.9,
+    },
+    visible: {
+      filter: "blur(0px)",
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.8,
+        delay: 0.6,
+        ease: "easeOut",
+      },
+    },
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
 
       <main className="flex-grow">
-        {/* Hero Section */}
-        <section className="w-full py-20 px-6 md:px-12 bg-[#D8DAFA]">
-          <div className="container mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-gray-900 leading-tight">
+        {/* Hero Section with Glassmorphism - No borders */}
+        <section className="w-full py-20 px-6 md:px-12 bg-[#D8DAFA] relative overflow-hidden">
+          {/* Glassmorphism decorative elements */}
+          <div className="absolute top-20 left-10 w-64 h-64 bg-indigo-400 rounded-full opacity-10 blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-10 right-10 w-80 h-80 bg-purple-400 rounded-full opacity-10 blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
+          <div className="absolute top-40 right-20 w-40 h-40 bg-pink-300 rounded-full opacity-10 blur-3xl animate-pulse" style={{ animationDelay: "1s" }}></div>
+          
+          <div className="container mx-auto text-center relative z-10">
+            <motion.h1 
+              variants={headingVariants}
+              initial="hidden"
+              animate={isTextRevealed ? "visible" : "hidden"}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-gray-900 leading-tight"
+            >
               Orielix : Together We Innovate
-            </h1>
-            <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto mb-10">
+            </motion.h1>
+            
+            <motion.p 
+              variants={paragraphVariants}
+              initial="hidden"
+              animate={isTextRevealed ? "visible" : "hidden"}
+              className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto mb-10"
+            >
               Step into a world of limitless learning and growth with Orielix. Gain essential skills, personalized
               guidance, and hands-on experience to shape your future.
-            </p>
-            <Button className="bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-6 text-lg h-auto rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-              Get Started
-            </Button>
+            </motion.p>
+            
+            <motion.div
+              variants={buttonVariants}
+              initial="hidden"
+              animate={isTextRevealed ? "visible" : "hidden"}
+            >
+              <Button className="bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-6 text-lg h-auto rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                Get Started
+              </Button>
+            </motion.div>
 
             <div className="mt-16">
-  <div className="relative">
-    {/* Background Decorative Shadows */}
-    <div className="absolute -top-10 -left-10 w-24 h-24 bg-indigo-400 rounded-full opacity-40 blur-xl"></div>
-    <div className="absolute -bottom-10 -right-10 w-36 h-36 bg-purple-400 rounded-full opacity-50 blur-2xl"></div>
+              <div className="relative">
+                {/* Background Decorative Shadows */}
+                <div className="absolute -top-10 -left-10 w-24 h-24 bg-indigo-400 rounded-full opacity-40 blur-xl"></div>
+                <div className="absolute -bottom-10 -right-10 w-36 h-36 bg-purple-400 rounded-full opacity-50 blur-2xl"></div>
 
-    {/* Soft glow effect */}
-    <div className="absolute inset-0 bg-indigo-200 opacity-30 blur-3xl"></div>
+                {/* Soft glow effect */}
+                <div className="absolute inset-0 bg-indigo-200 opacity-30 blur-3xl"></div>
 
-    {/* Hero Image */}
-    <Image
-      src="/hero.png"
-      alt="Orielix Platform Illustration"
-      width={800}
-      height={450}
-      className="mx-auto rounded-xl shadow-2xl relative z-10 transition-all duration-300 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]"
-    />
-  </div>
-</div>
-
+                {/* Hero Image with animation */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, delay: 0.8 }}
+                >
+                  <Image
+                    src="/hero.png"
+                    alt="Orielix Platform Illustration"
+                    width={800}
+                    height={450}
+                    className="mx-auto rounded-xl shadow-2xl relative z-10 transition-all duration-300 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]"
+                  />
+                </motion.div>
+              </div>
+            </div>
           </div>
         </section>
-
         {/* What We Offer Section */}
         <section className="w-full py-20 px-6 md:px-12 bg-[#D8DAFA]">
           <div className="container mx-auto">
