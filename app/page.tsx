@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import { motion } from "framer-motion"
+import { motion, useInView } from "framer-motion"
 
 // Testimonials data
 const testimonials = [
@@ -52,6 +52,10 @@ const roadmaps = [
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isTextRevealed, setIsTextRevealed] = useState(false)
+
+  // Refs for scroll animations
+  const whatWeOfferRef = useRef(null)
+  const isWhatWeOfferInView = useInView(whatWeOfferRef, { once: true, amount: 0.3 })
 
   const nextTestimonial = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length)
@@ -120,6 +124,35 @@ export default function Home() {
     },
   }
 
+  // What We Offer animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.1,
+      },
+    },
+  }
+
+  const itemVariants = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+      filter: "blur(5px)",
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: {
+        duration: 0.8,
+        ease: "easeOut",
+      },
+    },
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -129,11 +162,17 @@ export default function Home() {
         <section className="w-full py-20 px-6 md:px-12 bg-[#D8DAFA] relative overflow-hidden">
           {/* Glassmorphism decorative elements */}
           <div className="absolute top-20 left-10 w-64 h-64 bg-indigo-400 rounded-full opacity-10 blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-10 right-10 w-80 h-80 bg-purple-400 rounded-full opacity-10 blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
-          <div className="absolute top-40 right-20 w-40 h-40 bg-pink-300 rounded-full opacity-10 blur-3xl animate-pulse" style={{ animationDelay: "1s" }}></div>
-          
+          <div
+            className="absolute bottom-10 right-10 w-80 h-80 bg-purple-400 rounded-full opacity-10 blur-3xl animate-pulse"
+            style={{ animationDelay: "2s" }}
+          ></div>
+          <div
+            className="absolute top-40 right-20 w-40 h-40 bg-pink-300 rounded-full opacity-10 blur-3xl animate-pulse"
+            style={{ animationDelay: "1s" }}
+          ></div>
+
           <div className="container mx-auto text-center relative z-10">
-            <motion.h1 
+            <motion.h1
               variants={headingVariants}
               initial="hidden"
               animate={isTextRevealed ? "visible" : "hidden"}
@@ -141,8 +180,8 @@ export default function Home() {
             >
               Orielix : Together We Innovate
             </motion.h1>
-            
-            <motion.p 
+
+            <motion.p
               variants={paragraphVariants}
               initial="hidden"
               animate={isTextRevealed ? "visible" : "hidden"}
@@ -151,12 +190,8 @@ export default function Home() {
               Step into a world of limitless learning and growth with Orielix. Gain essential skills, personalized
               guidance, and hands-on experience to shape your future.
             </motion.p>
-            
-            <motion.div
-              variants={buttonVariants}
-              initial="hidden"
-              animate={isTextRevealed ? "visible" : "hidden"}
-            >
+
+            <motion.div variants={buttonVariants} initial="hidden" animate={isTextRevealed ? "visible" : "hidden"}>
               <Button className="bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-6 text-lg h-auto rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
                 Get Started
               </Button>
@@ -171,87 +206,98 @@ export default function Home() {
                 {/* Soft glow effect */}
                 <div className="absolute inset-0 bg-indigo-200 opacity-30 blur-3xl"></div>
 
-                {/* Hero Image with animation */}
+                {/* Hero Video with animation - replacing image */}
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, delay: 0.8 }}
+                  className="relative mx-auto rounded-xl shadow-2xl overflow-hidden"
+                  style={{ maxWidth: "800px" }}
                 >
-                  <Image
-                    src="/hero.png"
-                    alt="Orielix Platform Illustration"
-                    width={800}
-                    height={450}
-                    className="mx-auto rounded-xl shadow-2xl relative z-10 transition-all duration-300 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]"
-                  />
+                  <video
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="w-full h-auto rounded-xl object-cover transition-all duration-300 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]"
+                  >
+                    <source src="/hero.mov" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+
+                  {/* Overlay gradient for better text visibility if needed */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-30"></div>
                 </motion.div>
               </div>
             </div>
           </div>
         </section>
-        {/* What We Offer Section */}
-        <section className="w-full py-20 px-6 md:px-12 bg-[#D8DAFA]">
+
+        {/* What We Offer Section - with scroll animation */}
+        <section ref={whatWeOfferRef} className="w-full py-20 px-6 md:px-12 bg-[#D8DAFA]">
+          <motion.div
+            className="container mx-auto"
+            variants={containerVariants}
+            initial="hidden"
+            animate={isWhatWeOfferInView ? "visible" : "hidden"}
+          >
+            <motion.h2
+              variants={itemVariants}
+              className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900"
+            >
+              What We Offer
+            </motion.h2>
+
+            <motion.p variants={itemVariants} className="text-center text-gray-600 mb-16 max-w-3xl mx-auto">
+              Orielix provides hands-on experiences, peer support, creative challenges, and valuable resources for
+              growth.
+            </motion.p>
+
+            <motion.div variants={itemVariants} className="flex justify-center">
+              <div className="relative">
+                <div className="absolute -top-5 -left-5 w-16 h-16 bg-yellow-200 rounded-full opacity-50"></div>
+                <div className="absolute -bottom-5 -right-5 w-24 h-24 bg-indigo-200 rounded-full opacity-40"></div>
+                <Image src="/whatweoffer.png" alt="What We Offer" width={950} height={500} className="relative z-10" />
+              </div>
+            </motion.div>
+          </motion.div>
+        </section>
+
+        {/* Roadmaps Section */}
+        <section className="w-full py-16 px-6 md:px-12 bg-[#D8DAFA]">
           <div className="container mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">What We Offer</h2>
-            <p className="text-center text-gray-600 mb-16 max-w-3xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">Popular Roadmaps</h2>
+            <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
               Orielix provides hands-on experiences, peer support, creative challenges, and valuable resources for
               growth.
             </p>
 
-            <div className="flex justify-center">
-              <div className="relative">
-                <div className="absolute -top-5 -left-5 w-16 h-16 bg-yellow-200 rounded-full opacity-50"></div>
-                <div className="absolute -bottom-5 -right-5 w-24 h-24 bg-indigo-200 rounded-full opacity-40"></div>
-                <Image
-                  src="/whatweoffer.png"
-                  alt="What We Offer"
-                  width={950}
-                  height={500}
-                  className="relative z-10"
-                />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {roadmaps.map((roadmap, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                >
+                  {/* Display roadmap image */}
+                  <img
+                    src={roadmap.image || "/placeholder.svg"}
+                    alt={roadmap.title}
+                    className="w-full h-40 object-cover"
+                  />
+                  <div className="p-5">
+                    <h3 className="font-semibold text-lg mb-2">{roadmap.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4">{roadmap.content}</p>
+                    <p className="text-xs text-[#5864CE]">Last updated {roadmap.updatedTime}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-center mt-10">
+              <Button className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2">Browse more</Button>
             </div>
           </div>
         </section>
-
-        {/* Roadmaps Section */}
-<section className="w-full py-16 px-6 md:px-12 bg-[#D8DAFA]">
-  <div className="container mx-auto">
-    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">
-      Popular Roadmaps
-    </h2>
-    <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
-      Orielix provides hands-on experiences, peer support, creative challenges, and valuable resources for growth.
-    </p>
-
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {roadmaps.map((roadmap, index) => (
-        <div
-          key={index}
-          className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
-        >
-          {/* Display roadmap image */}
-          <img 
-            src={roadmap.image} 
-            alt={roadmap.title} 
-            className="w-full h-40 object-cover" 
-          />
-          <div className="p-5">
-            <h3 className="font-semibold text-lg mb-2">{roadmap.title}</h3>
-            <p className="text-gray-600 text-sm mb-4">{roadmap.content}</p>
-            <p className="text-xs text-[#5864CE]">Last updated {roadmap.updatedTime}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-
-    <div className="flex justify-center mt-10">
-      <Button className="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-2">
-        Browse more
-      </Button>
-    </div>
-  </div>
-</section>
 
         {/* Testimonial Section */}
         <section className="w-full py-20 px-6 md:px-12 bg-gradient-to-b from-[#D8DAFA] to-white">
